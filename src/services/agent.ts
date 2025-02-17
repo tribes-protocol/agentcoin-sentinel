@@ -33,7 +33,7 @@ export class AgentService {
     private readonly gitWatcherService: GitWatcherService,
     private readonly keychainService: KeychainService,
     private readonly adminPubKey: string
-  ) {}
+  ) { }
 
   async start(): Promise<void> {
     if (this.socket) {
@@ -98,7 +98,7 @@ export class AgentService {
 
   async getAgentId(): Promise<string> {
     while (!fs.existsSync(AGENT_PROVISION_FILE)) {
-      console.log('Waiting for agent provision file...')
+      console.log(`Waiting for agent provision file...${AGENT_PROVISION_FILE}`)
       await new Promise((resolve) => setTimeout(resolve, 10000))
     }
 

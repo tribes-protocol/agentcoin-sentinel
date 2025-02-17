@@ -44,7 +44,7 @@ ENV PATH=$NVM_DIR/versions/node/v22.13.0/bin:$PATH
 RUN npm i -g bun node-gyp rimraf tsup tsx dotenv-cli
 
 # need to cache bust the build
-ARG CACHE_BUST=1
+ARG CACHE_BUST=v1
 
 # clone the repos
 # sentinel
@@ -59,31 +59,8 @@ WORKDIR /root/runtime
 RUN bun install
 RUN bun run build
 
+# Add an entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# # Create .agent-sentinel directory and save git config
-# RUN mkdir -p /root/.agent-sentinel && \
-#     echo '{"repositoryUrl":"https://github.com/tribes-protocol/agentcoin-runtime.git","branch":"main"}' > /root/.agent-sentinel/agent-git.json
-
-# #  download and build agentcoin-runtime once
-# RUN mkdir -p /root/.agent-sentinel/agent-builds
-# # Add a cache-busting argument
-
-# RUN git clone https://github.com/tribes-protocol/agentcoin-runtime.git /root/.agent-sentinel/agent-builds/first
-# RUN cd /root/.agent-sentinel/builds/first && bun install && bun run build
-# RUN ln -s /root/.agent-sentinel/builds/first /root/.agent-sentinel/agent
-
-# # Copy project to sentinel directory
-# RUN mkdir -p /root/sentinel
-
-# COPY . /root/sentinel
-
-# # Set the working directory
-# WORKDIR /root/sentinel
-
-# USER root
-
-# RUN bun install
-
-# RUN bun run build
-
-# CMD bun run start
+ENTRYPOINT ["/entrypoint.sh"]

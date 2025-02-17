@@ -5,7 +5,6 @@ services:
     restart: always
     working_dir: /root/runtime
     command: ['bun', 'run', 'agent']
-    # TODO: hish - add this back -> read_only: true
     networks:
       - skynet
     volumes:
