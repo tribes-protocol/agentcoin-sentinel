@@ -7,7 +7,7 @@
     "dev": "tsx src/index.ts",
     "start": "tsx src/index.ts",
     "lint": "eslint src/**/*.ts",
-    "agent": "dotenv --e $HOME/.agentcoin-fun/env.production -- tsx dist/index.js"
+    "agent": "dotenv --e /root/.agentcoin-fun/env.production -- tsx dist/index.js"
   },
   "dependencies": {
     "@turnkey/http": "2.18.0",
