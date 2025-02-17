@@ -3,13 +3,22 @@ import { AGENT_ADMIN_PUBLIC_KEY } from '@/common/env'
 import { AgentService } from '@/services/agent'
 import { GitWatcherService } from '@/services/gitwatcher'
 import { KeychainService } from '@/services/keychain'
+import { KnowledgeService } from '@/services/knowledge'
+import path from 'path'
+import os from 'os'
 
 export const main = async (): Promise<void> => {
   // initialize services
   const keychainService = new KeychainService()
   const gitWatcherService = new GitWatcherService()
+  const knowledgeService = new KnowledgeService(path.join(os.homedir(), '.sentinel', 'knowledge'))
 
-  const agentService = new AgentService(gitWatcherService, keychainService, AGENT_ADMIN_PUBLIC_KEY)
+  const agentService = new AgentService(
+    gitWatcherService,
+    keychainService,
+    knowledgeService,
+    AGENT_ADMIN_PUBLIC_KEY
+  )
 
   // handle SIGINT
   process.on('SIGINT', async () => {

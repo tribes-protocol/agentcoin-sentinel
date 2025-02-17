@@ -6,6 +6,7 @@ import {
   AgentIdentity,
   AgentIdentitySchema,
   Character,
+  FileMetadata,
   SentinelCommand,
   SentinelCommandSchema
 } from '@/common/types'
@@ -16,6 +17,8 @@ import { KeychainService } from '@/services/keychain'
 import * as fs from 'fs'
 import { io, Socket } from 'socket.io-client'
 import { z } from 'zod'
+import crypto from 'crypto'
+import { KnowledgeService } from '@/services/knowledge'
 
 export const ProvisionStateSchema = z.object({
   agentId: AgentIdentitySchema
@@ -25,13 +28,13 @@ export type ProvisionState = z.infer<typeof ProvisionStateSchema>
 
 export class AgentService {
   private commandQueue = new OperationQueue(1)
-  private readonly stateFile = AGENT_PROVISION_FILE
   private socket?: Socket
   private cachedIdentity: AgentIdentity | undefined
 
   constructor(
     private readonly gitWatcherService: GitWatcherService,
     private readonly keychainService: KeychainService,
+    private readonly knowledgeService: KnowledgeService,
     private readonly adminPubKey: string
   ) {}
 
@@ -123,6 +126,12 @@ export class AgentService {
           break
         case 'set_envvars':
           await this.handleSetEnvvars(command.envVars)
+          break
+        case 'set_knowledge':
+          await this.knowledgeService.handleSetKnowledge(command.url, command.filename)
+          break
+        case 'delete_knowledge':
+          await this.knowledgeService.handleDeleteKnowledge(command.url, command.filename)
           break
       }
     })
