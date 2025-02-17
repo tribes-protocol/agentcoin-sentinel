@@ -1,8 +1,9 @@
 services:
   # agent runtime process
   agent-runtime:
-    image: agent-runtime-image
+    image: hishtribes/agentcoin-runtime
     restart: always
+    working_dir: /root/runtime
     command: ['bun', 'run', 'agent']
     # TODO: hish - add this back -> read_only: true
     networks:
@@ -16,12 +17,12 @@ services:
 
   # agent sentinel process
   agent-sentinel:
-    image: agent-sentinel-image
+    image: hishtribes/agentcoin-runtime
     restart: always
-    command: ['bun', 'run', 'start']
-    read_only: true
+    working_dir: /root/sentinel
+    command: ['bun', 'run', 'agent']
     networks:
-      - resistance
+      - skynet
     volumes:
       - ${HOME}/.agentcoin-fun:/root/.agentcoin-fun
     tmpfs:
@@ -31,5 +32,3 @@ networks:
   skynet:
     driver: bridge
     internal: false
-  resistance:
-    driver: bridge
