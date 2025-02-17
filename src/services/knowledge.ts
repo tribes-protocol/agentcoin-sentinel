@@ -9,10 +9,7 @@ export class KnowledgeService {
   private async writeJsonFile(metadata: Knowledge): Promise<void> {
     await fs.mkdir(this.knowledgeDirectory, { recursive: true })
 
-    const hash = crypto
-      .createHash('md5')
-      .update(metadata.url + metadata.filename)
-      .digest('hex')
+    const hash = crypto.createHash('md5').update(metadata.url).digest('hex')
     const filePath = path.join(this.knowledgeDirectory, `${hash}.json`)
     const tempFilePath = filePath + '.tmp' // Temporary file for atomic write
 
