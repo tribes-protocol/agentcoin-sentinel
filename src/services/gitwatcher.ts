@@ -14,8 +14,15 @@ export class GitWatcherService {
   private state: GitState
 
   constructor() {
-    const fileContent = fs.readFileSync(GIT_STATE_FILE, 'utf-8')
-    this.state = GitStateSchema.parse(JSON.parse(fileContent))
+    if (fs.existsSync(GIT_STATE_FILE)) {
+      const fileContent = fs.readFileSync(GIT_STATE_FILE, 'utf-8')
+      this.state = GitStateSchema.parse(JSON.parse(fileContent))
+    } else {
+      this.state = {
+        repositoryUrl: 'https://github.com/tribes-protocol/agentcoin-runtime.git',
+        branch: 'main'
+      }
+    }
   }
 
   async start(): Promise<void> {
