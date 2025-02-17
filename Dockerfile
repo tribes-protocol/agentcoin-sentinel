@@ -60,6 +60,8 @@ RUN bun install
 RUN bun run build
 
 # Add an entrypoint script
+USER root
+ENV HOME=/root
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
