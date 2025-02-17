@@ -166,14 +166,14 @@ export const SentinelCommandSchema = z.discriminatedUnion('kind', [
 
 export type SentinelCommand = z.infer<typeof SentinelCommandSchema>
 
-export const FileMetadataSchema = z.object({
+export const KnowledgeSchema = z.object({
   url: z.string(),
   filename: z.string(),
   action: z.enum(['create', 'delete']),
   updatedAt: z.preprocess((arg) => (isRequiredString(arg) ? new Date(arg) : arg), z.date())
 })
 
-export type FileMetadata = z.infer<typeof FileMetadataSchema>
+export type Knowledge = z.infer<typeof KnowledgeSchema>
 
 export const SignWithPubKeyRequest = z.object({
   message: z.string()

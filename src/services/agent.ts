@@ -6,7 +6,6 @@ import {
   AgentIdentity,
   AgentIdentitySchema,
   Character,
-  FileMetadata,
   SentinelCommand,
   SentinelCommandSchema
 } from '@/common/types'

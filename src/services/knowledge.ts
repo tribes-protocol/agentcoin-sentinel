@@ -1,12 +1,12 @@
+import { Knowledge } from '@/common/types'
 import crypto from 'crypto'
 import fs from 'fs/promises'
 import path from 'path'
-import { FileMetadata } from '@/common/types'
 
 export class KnowledgeService {
   constructor(private readonly knowledgeDirectory: string) {}
 
-  private async writeJsonFile(metadata: FileMetadata): Promise<void> {
+  private async writeJsonFile(metadata: Knowledge): Promise<void> {
     await fs.mkdir(this.knowledgeDirectory, { recursive: true })
 
     const hash = crypto
@@ -26,7 +26,7 @@ export class KnowledgeService {
   }
 
   async handleSetKnowledge(url: string, filename: string): Promise<void> {
-    const metadata: FileMetadata = {
+    const metadata: Knowledge = {
       url,
       filename,
       action: 'create',
@@ -37,7 +37,7 @@ export class KnowledgeService {
   }
 
   async handleDeleteKnowledge(url: string, filename: string): Promise<void> {
-    const metadata: FileMetadata = {
+    const metadata: Knowledge = {
       url,
       filename,
       action: 'delete',
