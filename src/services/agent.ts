@@ -48,7 +48,7 @@ export class AgentService {
       rejectUnauthorized: process.env.NODE_ENV === 'production',
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: Infinity,
       withCredentials: true,
       timeout: 20000,
       transports: ['websocket', 'polling'],
