@@ -25,3 +25,5 @@ export const BUILDS_DIR = path.join(AGENTCOIN_FUN_DIR, 'builds')
 if (!fs.existsSync(AGENTCOIN_FUN_DIR)) {
   fs.mkdirSync(AGENTCOIN_FUN_DIR, { recursive: true })
 }
+
+export const KNOWLEDGE_DIR = path.join(AGENTCOIN_FUN_DIR, 'knowledge')

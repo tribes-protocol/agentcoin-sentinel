@@ -3,14 +3,13 @@ import { AgentService } from '@/services/agent'
 import { GitWatcherService } from '@/services/gitwatcher'
 import { KeychainService } from '@/services/keychain'
 import { KnowledgeService } from '@/services/knowledge'
-import path from 'path'
-import { AGENTCOIN_FUN_DIR } from '@/common/constants'
+import { KNOWLEDGE_DIR } from '@/common/constants'
 
 export const main = async (): Promise<void> => {
   // initialize services
   const keychainService = new KeychainService()
   const gitWatcherService = new GitWatcherService()
-  const knowledgeService = new KnowledgeService(path.join(AGENTCOIN_FUN_DIR, 'knowledge'))
+  const knowledgeService = new KnowledgeService(KNOWLEDGE_DIR)
 
   const agentService = new AgentService(
     gitWatcherService,
