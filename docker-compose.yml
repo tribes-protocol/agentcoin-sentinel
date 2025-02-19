@@ -9,8 +9,6 @@ services:
       - skynet
     volumes:
       - ${HOME}/.agentcoin-fun:/root/.agentcoin-fun
-    tmpfs:
-      - /tmp:exec,mode=777
     depends_on:
       - agent-sentinel
 
@@ -24,8 +22,6 @@ services:
       - skynet
     volumes:
       - ${HOME}/.agentcoin-fun:/root/.agentcoin-fun
-    tmpfs:
-      - /tmp:exec,mode=777
 
   # watchtower for automatic updates
   watchtower:
