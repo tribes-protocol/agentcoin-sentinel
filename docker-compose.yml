@@ -3,7 +3,7 @@ services:
   agent-runtime:
     image: hishtribes/agentcoin-runtime
     restart: always
-    working_dir: /root/runtime
+    working_dir: /root/.agentcoin-fun/code
     command: ['bun', 'run', 'agent']
     networks:
       - skynet
@@ -26,6 +26,16 @@ services:
       - ${HOME}/.agentcoin-fun:/root/.agentcoin-fun
     tmpfs:
       - /tmp:exec,mode=777
+
+  # watchtower for automatic updates
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 --cleanup agent-runtime agent-sentinel
+    networks:
+      - skynet
 
 networks:
   skynet:
