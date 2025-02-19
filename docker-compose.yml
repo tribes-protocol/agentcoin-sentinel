@@ -1,4 +1,33 @@
 services:
+  # postgres service
+  agent-postgres:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - ${HOME}/.agentcoin-fun/dbdata:/var/lib/postgresql/data
+      - ${HOME}/.agentcoin-fun:/data
+    entrypoint: >
+      bash -c '
+      if [ ! -f "/data/db.env" ]; then
+          echo "Generating new db.env file..."
+          echo "POSTGRES_USER=agentcoin" > /data/db.env
+          echo "POSTGRES_DB=agentcoin" >> /data/db.env
+          echo "POSTGRES_PASSWORD=$$(openssl rand -base64 32)" >> /data/db.env
+          chmod 600 /data/db.env
+      fi
+      set -a
+      source /data/db.env
+      set +a
+      exec docker-entrypoint.sh postgres'
+    networks:
+      - skynet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentcoin -d agentcoin"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
   # agent runtime process
   agent-runtime:
     image: hishtribes/agentcoin-runtime
@@ -11,6 +40,7 @@ services:
       - ${HOME}/.agentcoin-fun:/root/.agentcoin-fun
     depends_on:
       - agent-sentinel
+      - agent-postgres
 
   # agent sentinel process
   agent-sentinel:
