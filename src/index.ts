@@ -9,14 +9,9 @@ export const main = async (): Promise<void> => {
   // initialize services
   const keychainService = new KeychainService()
   const gitWatcherService = new GitWatcherService()
-  const knowledgeService = new KnowledgeService(KNOWLEDGE_DIR)
+  const knowledgeService = new KnowledgeService()
 
-  const agentService = new AgentService(
-    gitWatcherService,
-    keychainService,
-    knowledgeService,
-    AGENT_ADMIN_PUBLIC_KEY
-  )
+  const agentService = new AgentService(gitWatcherService, keychainService, knowledgeService)
 
   // handle SIGINT
   process.on('SIGINT', async () => {

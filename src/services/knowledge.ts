@@ -1,16 +1,17 @@
+import { KNOWLEDGE_DIR } from '@/common/constants'
 import { Knowledge } from '@/common/types'
 import crypto from 'crypto'
 import fs from 'fs/promises'
 import path from 'path'
 
 export class KnowledgeService {
-  constructor(private readonly knowledgeDirectory: string) {}
+  constructor() {}
 
   private async writeJsonFile(metadata: Knowledge): Promise<void> {
-    await fs.mkdir(this.knowledgeDirectory, { recursive: true })
+    await fs.mkdir(KNOWLEDGE_DIR, { recursive: true })
 
     const hash = crypto.createHash('md5').update(metadata.url).digest('hex')
-    const filePath = path.join(this.knowledgeDirectory, `${hash}.json`)
+    const filePath = path.join(KNOWLEDGE_DIR, `${hash}.json`)
     const tempFilePath = filePath + '.tmp' // Temporary file for atomic write
 
     try {

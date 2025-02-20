@@ -1,6 +1,6 @@
 import { agentcoinClient } from '@/clients/agentcoin'
 import { AGENT_PROVISION_FILE, CHARACTER_FILE, ENV_FILE } from '@/common/constants'
-import { AGENTCOIN_FUN_API_URL } from '@/common/env'
+import { AGENT_ADMIN_PUBLIC_KEY, AGENTCOIN_FUN_API_URL } from '@/common/env'
 import { isNull, isRequiredString, isValidSignature } from '@/common/functions'
 import {
   AgentIdentity,
@@ -33,8 +33,7 @@ export class AgentService {
   constructor(
     private readonly gitWatcherService: GitWatcherService,
     private readonly keychainService: KeychainService,
-    private readonly knowledgeService: KnowledgeService,
-    private readonly adminPubKey: string
+    private readonly knowledgeService: KnowledgeService
   ) {}
 
   async start(): Promise<void> {
@@ -84,7 +83,7 @@ export class AgentService {
           throw new Error('Invalid payload')
         }
 
-        if (!isValidSignature(content, this.adminPubKey, signature)) {
+        if (!isValidSignature(content, AGENT_ADMIN_PUBLIC_KEY, signature)) {
           throw new Error('Invalid signature')
         }
 
