@@ -1,6 +1,6 @@
 import { agentcoinClient } from '@/clients/agentcoin'
 import { AGENT_PROVISION_FILE, CHARACTER_FILE, ENV_FILE } from '@/common/constants'
-import { AGENTCOIN_FUN_API_URL } from '@/common/env'
+import { AGENT_ADMIN_PUBLIC_KEY, AGENTCOIN_FUN_API_URL } from '@/common/env'
 import { isNull, isRequiredString, isValidSignature } from '@/common/functions'
 import {
   AgentIdentity,
@@ -16,6 +16,8 @@ import { KeychainService } from '@/services/keychain'
 import * as fs from 'fs'
 import { io, Socket } from 'socket.io-client'
 import { z } from 'zod'
+import crypto from 'crypto'
+import { KnowledgeService } from '@/services/knowledge'
 
 export const ProvisionStateSchema = z.object({
   agentId: AgentIdentitySchema
@@ -25,15 +27,14 @@ export type ProvisionState = z.infer<typeof ProvisionStateSchema>
 
 export class AgentService {
   private commandQueue = new OperationQueue(1)
-  private readonly stateFile = AGENT_PROVISION_FILE
   private socket?: Socket
   private cachedIdentity: AgentIdentity | undefined
 
   constructor(
     private readonly gitWatcherService: GitWatcherService,
     private readonly keychainService: KeychainService,
-    private readonly adminPubKey: string
-  ) { }
+    private readonly knowledgeService: KnowledgeService
+  ) {}
 
   async start(): Promise<void> {
     if (this.socket) {
@@ -74,7 +75,6 @@ export class AgentService {
     })
 
     this.socket.on(`admin:${agentId}`, async (payload: string) => {
-
       try {
         const jsonObj = JSON.parse(payload)
         const { content, signature } = jsonObj
@@ -82,7 +82,7 @@ export class AgentService {
           throw new Error('Invalid payload')
         }
 
-        if (!isValidSignature(content, this.adminPubKey, signature)) {
+        if (!isValidSignature(content, AGENT_ADMIN_PUBLIC_KEY, signature)) {
           throw new Error('Invalid signature')
         }
 
@@ -121,12 +121,21 @@ export class AgentService {
         case 'set_character_n_envvars':
           await this.handleSetCharacterAndEnvvars(command.character, command.envVars)
           break
+        case 'set_knowledge':
+          await this.knowledgeService.handleSetKnowledge(command.url, command.filename)
+          break
+        case 'delete_knowledge':
+          await this.knowledgeService.handleDeleteKnowledge(command.url, command.filename)
+          break
       }
       console.log('admin command handled:', command.kind)
     })
   }
 
-  private async handleSetCharacterAndEnvvars(character: Character, envVars: Record<string, string>): Promise<void> {
+  private async handleSetCharacterAndEnvvars(
+    character: Character,
+    envVars: Record<string, string>
+  ): Promise<void> {
     // write the character to the character file
     await fs.promises.writeFile(CHARACTER_FILE, JSON.stringify(character, null, 2))
 
@@ -137,7 +146,6 @@ export class AgentService {
 
     await fs.promises.writeFile(ENV_FILE, envContent)
   }
-
 
   async stop(): Promise<void> {
     if (isNull(this.socket)) {

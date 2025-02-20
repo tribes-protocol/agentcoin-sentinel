@@ -140,13 +140,35 @@ export const SentinelSetCharAndEnvVarsCommandSchema = z.object({
   envVars: z.record(z.string(), z.string())
 })
 
+export const SentinelSetKnowledgeCommandSchema = z.object({
+  kind: z.literal('set_knowledge'),
+  url: z.string(),
+  filename: z.string()
+})
+
+export const SentinelDeleteKnowledgeCommandSchema = z.object({
+  kind: z.literal('delete_knowledge'),
+  url: z.string(),
+  filename: z.string()
+})
+
 export const SentinelCommandSchema = z.discriminatedUnion('kind', [
   SentinelSetGitCommandSchema,
+  SentinelSetKnowledgeCommandSchema,
+  SentinelDeleteKnowledgeCommandSchema,
   SentinelSetCharAndEnvVarsCommandSchema
 ])
 
 export type SentinelCommand = z.infer<typeof SentinelCommandSchema>
 
+export const KnowledgeSchema = z.object({
+  url: z.string(),
+  filename: z.string(),
+  action: z.enum(['create', 'delete']),
+  updatedAt: z.preprocess((arg) => (isRequiredString(arg) ? new Date(arg) : arg), z.date())
+})
+
+export type Knowledge = z.infer<typeof KnowledgeSchema>
 
 export const SignWithPubKeyRequest = z.object({
   message: z.string()
