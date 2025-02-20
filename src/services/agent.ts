@@ -74,7 +74,7 @@ export class AgentService {
     })
 
     this.socket.on(`admin:${agentId}`, async (payload: string) => {
-      console.log('admin command received:', payload)
+
       try {
         const jsonObj = JSON.parse(payload)
         const { content, signature } = jsonObj
@@ -113,7 +113,7 @@ export class AgentService {
 
   private async handleAdminCommand(command: SentinelCommand): Promise<void> {
     await this.commandQueue.submit(async () => {
-      console.log('admin command received:', command)
+      console.log('admin command received:', command.kind)
       switch (command.kind) {
         case 'set_git':
           await this.gitWatcherService.setGitState(command.state)
@@ -122,6 +122,7 @@ export class AgentService {
           await this.handleSetCharacterAndEnvvars(command.character, command.envVars)
           break
       }
+      console.log('admin command handled:', command.kind)
     })
   }
 
