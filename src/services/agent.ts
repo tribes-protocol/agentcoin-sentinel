@@ -118,27 +118,25 @@ export class AgentService {
         case 'set_git':
           await this.gitWatcherService.setGitState(command.state)
           break
-        case 'set_character':
-          await this.handleSetCharacter(command.character)
-          break
-        case 'set_envvars':
-          await this.handleSetEnvvars(command.envVars)
+        case 'set_character_n_envvars':
+          await this.handleSetCharacterAndEnvvars(command.character, command.envVars)
           break
       }
     })
   }
 
-  private async handleSetCharacter(character: Character): Promise<void> {
+  private async handleSetCharacterAndEnvvars(character: Character, envVars: Record<string, string>): Promise<void> {
+    // write the character to the character file
     await fs.promises.writeFile(CHARACTER_FILE, JSON.stringify(character, null, 2))
-  }
 
-  private async handleSetEnvvars(envVars: Record<string, string>): Promise<void> {
+    // write the env vars to the env file
     const envContent = Object.entries(envVars)
       .map(([key, value]) => `${key}=${value}`)
       .join('\n')
 
     await fs.promises.writeFile(ENV_FILE, envContent)
   }
+
 
   async stop(): Promise<void> {
     if (isNull(this.socket)) {

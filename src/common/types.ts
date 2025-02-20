@@ -134,23 +134,19 @@ export const SentinelSetGitCommandSchema = z.object({
   state: GitStateSchema
 })
 
-export const SentinelSetCharacterCommandSchema = z.object({
-  kind: z.literal('set_character'),
-  character: CharacterSchema
-})
-
-export const SentinelSetEnvVarsCommandSchema = z.object({
-  kind: z.literal('set_envvars'),
+export const SentinelSetCharAndEnvVarsCommandSchema = z.object({
+  kind: z.literal('set_character_n_envvars'),
+  character: CharacterSchema,
   envVars: z.record(z.string(), z.string())
 })
 
 export const SentinelCommandSchema = z.discriminatedUnion('kind', [
   SentinelSetGitCommandSchema,
-  SentinelSetCharacterCommandSchema,
-  SentinelSetEnvVarsCommandSchema
+  SentinelSetCharAndEnvVarsCommandSchema
 ])
 
 export type SentinelCommand = z.infer<typeof SentinelCommandSchema>
+
 
 export const SignWithPubKeyRequest = z.object({
   message: z.string()
