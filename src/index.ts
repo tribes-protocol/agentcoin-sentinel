@@ -6,6 +6,7 @@ import { KnowledgeService } from '@/services/knowledge'
 import { KNOWLEDGE_DIR } from '@/common/constants'
 
 export const main = async (): Promise<void> => {
+  console.log('Home directory:', process.env.HOME)
   // initialize services
   const keychainService = new KeychainService()
   const gitWatcherService = new GitWatcherService()

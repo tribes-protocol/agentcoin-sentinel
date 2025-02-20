@@ -49,7 +49,7 @@ export class AgentService {
       rejectUnauthorized: process.env.NODE_ENV === 'production',
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: Infinity,
       withCredentials: true,
       timeout: 20000,
       transports: ['websocket', 'polling'],
@@ -75,7 +75,6 @@ export class AgentService {
     })
 
     this.socket.on(`admin:${agentId}`, async (payload: string) => {
-      console.log('admin command received:', payload)
       try {
         const jsonObj = JSON.parse(payload)
         const { content, signature } = jsonObj
@@ -99,7 +98,7 @@ export class AgentService {
 
   async getAgentId(): Promise<string> {
     while (!fs.existsSync(AGENT_PROVISION_FILE)) {
-      console.log('Waiting for agent provision file...')
+      console.log(`Waiting for agent provision file...${AGENT_PROVISION_FILE}`)
       await new Promise((resolve) => setTimeout(resolve, 10000))
     }
 
@@ -114,16 +113,13 @@ export class AgentService {
 
   private async handleAdminCommand(command: SentinelCommand): Promise<void> {
     await this.commandQueue.submit(async () => {
-      console.log('admin command received:', command)
+      console.log('admin command received:', command.kind)
       switch (command.kind) {
         case 'set_git':
           await this.gitWatcherService.setGitState(command.state)
           break
-        case 'set_character':
-          await this.handleSetCharacter(command.character)
-          break
-        case 'set_envvars':
-          await this.handleSetEnvvars(command.envVars)
+        case 'set_character_n_envvars':
+          await this.handleSetCharacterAndEnvvars(command.character, command.envVars)
           break
         case 'set_knowledge':
           await this.knowledgeService.handleSetKnowledge(command.url, command.filename)
@@ -132,14 +128,18 @@ export class AgentService {
           await this.knowledgeService.handleDeleteKnowledge(command.url, command.filename)
           break
       }
+      console.log('admin command handled:', command.kind)
     })
   }
 
-  private async handleSetCharacter(character: Character): Promise<void> {
+  private async handleSetCharacterAndEnvvars(
+    character: Character,
+    envVars: Record<string, string>
+  ): Promise<void> {
+    // write the character to the character file
     await fs.promises.writeFile(CHARACTER_FILE, JSON.stringify(character, null, 2))
-  }
 
-  private async handleSetEnvvars(envVars: Record<string, string>): Promise<void> {
+    // write the env vars to the env file
     const envContent = Object.entries(envVars)
       .map(([key, value]) => `${key}=${value}`)
       .join('\n')

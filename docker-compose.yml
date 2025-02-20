@@ -1,35 +1,70 @@
 services:
+  # postgres service
+  agent-postgres:
+    image: pgvector/pgvector:0.8.0-pg17
+    restart: always
+    volumes:
+      - ${HOME}/.agentcoin-fun/dbdata:/var/lib/postgresql/data
+      - ${HOME}/.agentcoin-fun:/data
+    entrypoint: >
+      bash -c '
+      if [ ! -f "/data/db.env" ]; then
+          echo "Generating new db.env file..."
+          echo "POSTGRES_USER=agentcoin" > /data/db.env
+          echo "POSTGRES_DB=agentcoin" >> /data/db.env
+          echo "POSTGRES_PASSWORD=$$(openssl rand -hex 32)" >> /data/db.env
+          chmod 600 /data/db.env;
+      fi;
+      set -a;
+      source /data/db.env;
+      set +a;
+      exec docker-entrypoint.sh postgres
+      '
+    networks:
+      - skynet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentcoin -d agentcoin"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+
   # agent runtime process
   agent-runtime:
-    image: agent-runtime-image
+    image: hishtribes/agentcoin-runtime
     restart: always
+    working_dir: /root/.agentcoin-fun/code
     command: ['bun', 'run', 'agent']
-    # TODO: hish - add this back -> read_only: true
     networks:
       - skynet
     volumes:
       - ${HOME}/.agentcoin-fun:/root/.agentcoin-fun
-    tmpfs:
-      - /tmp:exec,mode=777
     depends_on:
       - agent-sentinel
+      - agent-postgres
 
   # agent sentinel process
   agent-sentinel:
-    image: agent-sentinel-image
+    image: hishtribes/agentcoin-runtime
     restart: always
-    command: ['bun', 'run', 'start']
-    read_only: true
+    working_dir: /root/sentinel
+    command: ['bun', 'run', 'agent']
     networks:
-      - resistance
+      - skynet
     volumes:
       - ${HOME}/.agentcoin-fun:/root/.agentcoin-fun
-    tmpfs:
-      - /tmp:exec,mode=777
+
+  # watchtower for automatic updates
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 --cleanup agent-runtime agent-sentinel
+    networks:
+      - skynet
 
 networks:
   skynet:
     driver: bridge
     internal: false
-  resistance:
-    driver: bridge
