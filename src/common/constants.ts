@@ -21,9 +21,11 @@ export const CODE_DIR = path.join(AGENTCOIN_FUN_DIR, 'code')
 
 export const BUILDS_DIR = path.join(AGENTCOIN_FUN_DIR, 'builds')
 
+export const KNOWLEDGE_DIR = path.join(AGENTCOIN_FUN_DIR, 'knowledge')
+
+export const RUNTIME_SERVER_SOCKET_FILE = path.join(AGENTCOIN_FUN_DIR, 'runtime-server.sock')
+
 // make sure the `.agentcoin-fun` directory exists
 if (!fs.existsSync(AGENTCOIN_FUN_DIR)) {
   fs.mkdirSync(AGENTCOIN_FUN_DIR, { recursive: true })
 }
-
-export const KNOWLEDGE_DIR = path.join(AGENTCOIN_FUN_DIR, 'knowledge')

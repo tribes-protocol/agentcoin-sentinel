@@ -1,4 +1,5 @@
-import { agentcoinClient } from '@/clients/agentcoin'
+import { agentcoinAPI } from '@/apis/agentcoin'
+import { runtimeAPI } from '@/apis/runtime'
 import { AGENT_PROVISION_FILE, CHARACTER_FILE, ENV_FILE } from '@/common/constants'
 import { AGENT_ADMIN_PUBLIC_KEY, AGENTCOIN_FUN_API_URL } from '@/common/env'
 import { isNull, isRequiredString, isValidSignature } from '@/common/functions'
@@ -13,11 +14,10 @@ import { OperationQueue } from '@/lang/operation_queue'
 
 import { GitWatcherService } from '@/services/gitwatcher'
 import { KeychainService } from '@/services/keychain'
+import { KnowledgeService } from '@/services/knowledge'
 import * as fs from 'fs'
 import { io, Socket } from 'socket.io-client'
 import { z } from 'zod'
-import crypto from 'crypto'
-import { KnowledgeService } from '@/services/knowledge'
 
 export const ProvisionStateSchema = z.object({
   agentId: AgentIdentitySchema
@@ -34,7 +34,7 @@ export class AgentService {
     private readonly gitWatcherService: GitWatcherService,
     private readonly keychainService: KeychainService,
     private readonly knowledgeService: KnowledgeService
-  ) {}
+  ) { }
 
   async start(): Promise<void> {
     if (this.socket) {
@@ -56,7 +56,7 @@ export class AgentService {
       autoConnect: true,
       auth: async (cb: (data: unknown) => void) => {
         console.log('re-authenticating ws with agentcoin')
-        const message = await agentcoinClient.generateAuthMessage(publicKey)
+        const message = await agentcoinAPI.generateAuthMessage(publicKey)
         const signature = await this.keychainService.sign(message)
         cb({
           message,
@@ -145,6 +145,7 @@ export class AgentService {
       .join('\n')
 
     await fs.promises.writeFile(ENV_FILE, envContent)
+    await runtimeAPI.sendCommand('character_n_envvars')
   }
 
   async stop(): Promise<void> {

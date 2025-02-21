@@ -6,7 +6,7 @@ const AuthMessageResponseSchema = z.object({
   message: z.string()
 })
 
-class AgentcoinClient {
+class AgentcoinAPI {
   async provisionAgent(
     signupToken: string,
     signature: string,
@@ -47,4 +47,4 @@ class AgentcoinClient {
   }
 }
 
-export const agentcoinClient = new AgentcoinClient()
+export const agentcoinAPI = new AgentcoinAPI()

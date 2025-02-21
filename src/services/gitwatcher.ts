@@ -1,3 +1,4 @@
+import { runtimeAPI } from '@/apis/runtime'
 import { BUILDS_DIR, CODE_DIR, GIT_STATE_FILE } from '@/common/constants'
 import { isEqualGitState, isNull } from '@/common/functions'
 import { GitState, GitStateSchema } from '@/common/types'
@@ -113,6 +114,7 @@ export class GitWatcherService {
           fs.unlinkSync(CODE_DIR)
         }
         fs.symlinkSync(repoPath, CODE_DIR)
+        await runtimeAPI.sendCommand('git')
       } catch (error) {
         console.error('Build failed:', error)
         // Clean up failed build directory
