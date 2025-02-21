@@ -113,18 +113,27 @@ export class GitService {
 
         console.log('Installing runtime dependencies...')
         await spawnAsync('bun', ['i'], { cwd: repoPath, stdio: 'inherit' })
+        console.log('Installed runtime dependencies')
 
         console.log('Building runtime...')
         await spawnAsync('bun', ['run', 'build'], { cwd: repoPath, stdio: 'inherit' })
+        console.log('Built runtime')
 
         // symlink the app
         if (symlinkExists) {
+          console.log('Removing old symlink...')
           fs.unlinkSync(CODE_DIR)
+          console.log('Removed old symlink')
         }
+        console.log('Creating new symlink...')
         fs.symlinkSync(repoPath, CODE_DIR)
-        runtimeAPI.sendCommand('git').catch((error) => {
+        console.log('Created new symlink')
+
+        console.log('Sending git command...')
+        await runtimeAPI.sendCommand('git').catch((error) => {
           console.error('Failed to send git command:', error)
         })
+        console.log('Done deploying agent')
       } catch (error) {
         console.error('Build failed:', error)
         // Clean up failed build directory
