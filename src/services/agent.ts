@@ -34,7 +34,7 @@ export class AgentService {
     private readonly gitWatcherService: GitWatcherService,
     private readonly keychainService: KeychainService,
     private readonly knowledgeService: KnowledgeService
-  ) { }
+  ) {}
 
   async start(): Promise<void> {
     if (this.socket) {
@@ -121,11 +121,11 @@ export class AgentService {
         case 'set_character_n_envvars':
           await this.handleSetCharacterAndEnvvars(command.character, command.envVars)
           break
-        case 'set_knowledge':
-          await this.knowledgeService.handleSetKnowledge(command.url, command.filename)
+        case 'add_knowledge':
+          await this.knowledgeService.handleAddKnowledge(command.source, command.filename)
           break
         case 'delete_knowledge':
-          await this.knowledgeService.handleDeleteKnowledge(command.url, command.filename)
+          await this.knowledgeService.handleDeleteKnowledge(command.source, command.filename)
           break
       }
       console.log('admin command handled:', command.kind)
