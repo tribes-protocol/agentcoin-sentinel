@@ -114,7 +114,9 @@ export class GitWatcherService {
           fs.unlinkSync(CODE_DIR)
         }
         fs.symlinkSync(repoPath, CODE_DIR)
-        await runtimeAPI.sendCommand('git')
+        runtimeAPI.sendCommand('git').catch((error) => {
+          console.error('Failed to send git command:', error)
+        })
       } catch (error) {
         console.error('Build failed:', error)
         // Clean up failed build directory

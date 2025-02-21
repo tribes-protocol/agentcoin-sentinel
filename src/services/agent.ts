@@ -145,7 +145,9 @@ export class AgentService {
       .join('\n')
 
     await fs.promises.writeFile(ENV_FILE, envContent)
-    await runtimeAPI.sendCommand('character_n_envvars')
+    void runtimeAPI.sendCommand('character_n_envvars').catch((error) => {
+      console.error('Failed to send character_n_envvars command:', error)
+    })
   }
 
   async stop(): Promise<void> {
