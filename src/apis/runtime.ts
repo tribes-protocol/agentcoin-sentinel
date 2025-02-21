@@ -17,7 +17,7 @@ class RuntimeAPI {
       url: `/command/new?kind=${kind}`
     })
 
-    if (!response.data.success) {
+    if (response.status !== 200) {
       throw new Error(`Command failed: ${response.data.error}`)
     }
   }
