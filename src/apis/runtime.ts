@@ -14,7 +14,7 @@ class RuntimeAPI {
     const response = await axios({
       method: 'GET',
       socketPath: RUNTIME_SERVER_SOCKET_FILE,
-      url: `/command/new?kind=${kind}`
+      url: `http://localhost/command/new?kind=${kind}`
     })
 
     if (response.status !== 200) {
