@@ -6,10 +6,11 @@ import { OperationQueue } from '@/lang/operation_queue'
 import { execSync } from 'child_process'
 import { createHash } from 'crypto'
 import * as fs from 'fs'
+import os from 'os'
 import * as path from 'path'
 import simpleGit from 'simple-git'
 
-export class GitWatcherService {
+export class GitService {
   private deployerQueue = new OperationQueue(1)
   private isWatching: boolean = false
   private state: GitState
@@ -102,9 +103,22 @@ export class GitWatcherService {
       const oldRepoPath = symlinkExists ? fs.realpathSync(CODE_DIR) : undefined
 
       try {
-        // build the app
+        // cpulimit -l 100 means 100% of ONE CPU core
+        const numCores = os.cpus().length
+        // 90% of all cores (in cpulimit units)
+        const totalCpuLimit = Math.floor(numCores * 100 * 0.9)
+        console.log(
+          `Limiting total CPU usage to 90% across ${numCores} cores (cpulimit: ${totalCpuLimit})`
+        )
+
         console.log('Installing runtime dependencies...')
-        execSync('bun i && bun run build', {
+        execSync(`cpulimit -l ${totalCpuLimit} -- bun i`, {
+          cwd: repoPath,
+          stdio: 'inherit'
+        })
+
+        console.log('Building runtime...')
+        execSync(`cpulimit -l ${totalCpuLimit} -- bun run build`, {
           cwd: repoPath,
           stdio: 'inherit'
         })

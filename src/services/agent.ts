@@ -1,20 +1,12 @@
 import { agentcoinAPI } from '@/apis/agentcoin'
-import { runtimeAPI } from '@/apis/runtime'
-import { AGENT_PROVISION_FILE, CHARACTER_FILE, ENV_FILE } from '@/common/constants'
+import { AGENT_PROVISION_FILE } from '@/common/constants'
 import { AGENT_ADMIN_PUBLIC_KEY, AGENTCOIN_FUN_API_URL } from '@/common/env'
 import { isNull, isRequiredString, isValidSignature } from '@/common/functions'
-import {
-  AgentIdentity,
-  AgentIdentitySchema,
-  Character,
-  SentinelCommand,
-  SentinelCommandSchema
-} from '@/common/types'
+import { AgentIdentity, AgentIdentitySchema, SentinelSetGitCommandSchema } from '@/common/types'
 import { OperationQueue } from '@/lang/operation_queue'
 
-import { GitWatcherService } from '@/services/gitwatcher'
+import { GitService } from '@/services/git'
 import { KeychainService } from '@/services/keychain'
-import { KnowledgeService } from '@/services/knowledge'
 import * as fs from 'fs'
 import { io, Socket } from 'socket.io-client'
 import { z } from 'zod'
@@ -29,12 +21,13 @@ export class AgentService {
   private commandQueue = new OperationQueue(1)
   private socket?: Socket
   private cachedIdentity: AgentIdentity | undefined
+  private readonly gitService: GitService
+  private readonly keychainService: KeychainService
 
-  constructor(
-    private readonly gitWatcherService: GitWatcherService,
-    private readonly keychainService: KeychainService,
-    private readonly knowledgeService: KnowledgeService
-  ) {}
+  constructor(gitService: GitService, keychainService: KeychainService) {
+    this.gitService = gitService
+    this.keychainService = keychainService
+  }
 
   async start(): Promise<void> {
     if (this.socket) {
@@ -86,8 +79,15 @@ export class AgentService {
           throw new Error('Invalid signature')
         }
 
-        const command = SentinelCommandSchema.parse(JSON.parse(content))
-        await this.handleAdminCommand(command)
+        const command = SentinelSetGitCommandSchema.safeParse(JSON.parse(content))
+        if (!command.success) {
+          // ignore other commands
+          return
+        }
+
+        console.log('admin command received:', command.data.kind)
+        await this.gitService.setGitState(command.data.state)
+        console.log('admin command handled:', command.data.kind)
       } catch (e) {
         console.error('Error handling admin command:', e, payload)
       }
@@ -109,45 +109,6 @@ export class AgentService {
       this.cachedIdentity = agentId
     }
     return this.cachedIdentity
-  }
-
-  private async handleAdminCommand(command: SentinelCommand): Promise<void> {
-    await this.commandQueue.submit(async () => {
-      console.log('admin command received:', command.kind)
-      switch (command.kind) {
-        case 'set_git':
-          await this.gitWatcherService.setGitState(command.state)
-          break
-        case 'set_character_n_envvars':
-          await this.handleSetCharacterAndEnvvars(command.character, command.envVars)
-          break
-        case 'add_knowledge':
-          await this.knowledgeService.handleAddKnowledge(command.source, command.filename)
-          break
-        case 'delete_knowledge':
-          await this.knowledgeService.handleDeleteKnowledge(command.source, command.filename)
-          break
-      }
-      console.log('admin command handled:', command.kind)
-    })
-  }
-
-  private async handleSetCharacterAndEnvvars(
-    character: Character,
-    envVars: Record<string, string>
-  ): Promise<void> {
-    // write the character to the character file
-    await fs.promises.writeFile(CHARACTER_FILE, JSON.stringify(character, null, 2))
-
-    // write the env vars to the env file
-    const envContent = Object.entries(envVars)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('\n')
-
-    await fs.promises.writeFile(ENV_FILE, envContent)
-    void runtimeAPI.sendCommand('character_n_envvars').catch((error) => {
-      console.error('Failed to send character_n_envvars command:', error)
-    })
   }
 
   async stop(): Promise<void> {
