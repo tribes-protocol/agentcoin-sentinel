@@ -3,10 +3,9 @@ import { BUILDS_DIR, CODE_DIR, GIT_STATE_FILE } from '@/common/constants'
 import { isEqualGitState, isNull } from '@/common/functions'
 import { GitState, GitStateSchema } from '@/common/types'
 import { OperationQueue } from '@/lang/operation_queue'
-import { execSync } from 'child_process'
+import { spawn, SpawnOptions } from 'child_process'
 import { createHash } from 'crypto'
 import * as fs from 'fs'
-import os from 'os'
 import * as path from 'path'
 import simpleGit from 'simple-git'
 
@@ -103,25 +102,20 @@ export class GitService {
       const oldRepoPath = symlinkExists ? fs.realpathSync(CODE_DIR) : undefined
 
       try {
-        // cpulimit -l 100 means 100% of ONE CPU core
-        const numCores = os.cpus().length
-        // 90% of all cores (in cpulimit units)
-        const totalCpuLimit = Math.floor(numCores * 100 * 0.9)
-        console.log(
-          `Limiting total CPU usage to 90% across ${numCores} cores (cpulimit: ${totalCpuLimit})`
-        )
+        // // cpulimit -l 100 means 100% of ONE CPU core
+        // const numCores = os.cpus().length
+        // // 90% of all cores (in cpulimit units)
+        // const totalCpuLimit = Math.floor(numCores * 100 * 0.9)
+        // console.log(
+        //   `Limiting total CPU usage to 90% across ${numCores} cores (cpulimit: ${totalCpuLimit})`
+        // )
+        // execSync(`cpulimit -l ${totalCpuLimit} -- bun i`, {
 
         console.log('Installing runtime dependencies...')
-        execSync(`cpulimit -l ${totalCpuLimit} -- bun i`, {
-          cwd: repoPath,
-          stdio: 'inherit'
-        })
+        await spawnAsync('bun', ['i'], { cwd: repoPath, stdio: 'inherit' })
 
         console.log('Building runtime...')
-        execSync(`cpulimit -l ${totalCpuLimit} -- bun run build`, {
-          cwd: repoPath,
-          stdio: 'inherit'
-        })
+        await spawnAsync('bun', ['run', 'build'], { cwd: repoPath, stdio: 'inherit' })
 
         // symlink the app
         if (symlinkExists) {
@@ -202,4 +196,19 @@ async function prepareBuildDirectory(repoUrl: string, commit: string): Promise<s
   await git.checkout(commit)
 
   return buildPath
+}
+
+function spawnAsync(command: string, args: string[], options: SpawnOptions): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const process = spawn(command, args, options)
+    process.on('close', (code) => {
+      if (code === 0) {
+        resolve()
+      } else {
+        console.error(`Process [${command} ${args.join(' ')}] exited with code ${code}`)
+        reject(new Error(`Process exited with code ${code}`))
+      }
+    })
+    process.on('error', reject)
+  })
 }
