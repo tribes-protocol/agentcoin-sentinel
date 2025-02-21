@@ -10,7 +10,7 @@ export class KnowledgeService {
   private async writeJsonFile(metadata: Knowledge): Promise<void> {
     await fs.mkdir(KNOWLEDGE_DIR, { recursive: true })
 
-    const hash = crypto.createHash('md5').update(metadata.url).digest('hex')
+    const hash = crypto.createHash('md5').update(metadata.source).digest('hex')
     const filePath = path.join(KNOWLEDGE_DIR, `${hash}.json`)
     const tempFilePath = filePath + '.tmp' // Temporary file for atomic write
 
@@ -23,9 +23,9 @@ export class KnowledgeService {
     }
   }
 
-  async handleSetKnowledge(url: string, filename: string): Promise<void> {
+  async handleAddKnowledge(source: string, filename: string): Promise<void> {
     const metadata: Knowledge = {
-      url,
+      source,
       filename,
       action: 'create',
       updatedAt: new Date()
@@ -34,9 +34,9 @@ export class KnowledgeService {
     await this.writeJsonFile(metadata)
   }
 
-  async handleDeleteKnowledge(url: string, filename: string): Promise<void> {
+  async handleDeleteKnowledge(source: string, filename: string): Promise<void> {
     const metadata: Knowledge = {
-      url,
+      source,
       filename,
       action: 'delete',
       updatedAt: new Date()
