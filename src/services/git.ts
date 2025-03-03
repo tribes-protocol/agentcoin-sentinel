@@ -48,7 +48,7 @@ export class GitService {
   private async checkAndUpdate(): Promise<void> {
     const state = this.state
     if (state.commit) {
-      console.log('Ignoring updates due to manual rollback')
+      // console.log('Ignoring updates due to manual rollback')
       return
     }
 
