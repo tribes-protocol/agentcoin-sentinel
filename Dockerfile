@@ -45,7 +45,7 @@ ENV PATH=$NVM_DIR/versions/node/v22.13.0/bin:$PATH
 RUN npm i -g bun node-gyp rimraf tsup tsx dotenv-cli
 
 # need to cache bust the build
-ARG CACHE_BUST=v1
+ARG CACHE_BUST=v2
 
 # clone the repos
 # sentinel
