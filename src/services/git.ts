@@ -1,6 +1,6 @@
 import { runtimeAPI } from '@/apis/runtime'
 import { BUILDS_DIR, CODE_DIR, GIT_STATE_FILE } from '@/common/constants'
-import { isEqualGitState, isNull } from '@/common/functions'
+import { isEqualGitState, isNull, trimToNull } from '@/common/functions'
 import { GitState, GitStateSchema } from '@/common/types'
 import { OperationQueue } from '@/lang/operation_queue'
 import { spawn, SpawnOptions } from 'child_process'
@@ -20,7 +20,7 @@ export class GitService {
       this.state = GitStateSchema.parse(JSON.parse(fileContent))
     } else {
       this.state = {
-        repositoryUrl: 'https://github.com/tribes-protocol/agentcoin-runtime.git',
+        repositoryUrl: 'https://github.com/tribes-protocol/agent.git',
         branch: 'main'
       }
     }
@@ -56,7 +56,8 @@ export class GitService {
 
     // initial agent launch
     if (!fs.existsSync(CODE_DIR)) {
-      commit = state.commit ?? (await getLatestCommitHash(state.repositoryUrl, state.branch))
+      commit =
+        trimToNull(state.commit) ?? (await getLatestCommitHash(state.repositoryUrl, state.branch))
     } else {
       // check if the agent is outdated
       const buildPath = fs.realpathSync(CODE_DIR)
@@ -85,7 +86,8 @@ export class GitService {
       return
     }
 
-    const commit = state.commit ?? (await getLatestCommitHash(state.repositoryUrl, state.branch))
+    const commit =
+      trimToNull(state.commit) ?? (await getLatestCommitHash(state.repositoryUrl, state.branch))
     await this.build(state.repositoryUrl, commit)
 
     this.state = state

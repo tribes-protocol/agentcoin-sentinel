@@ -40,3 +40,17 @@ export function isValidSignature(message: string, publicKey: string, signature: 
     return false
   }
 }
+
+/**
+ * Trims a string and returns null if the result is empty
+ * @param str The string to trim
+ * @returns The trimmed string or null if empty
+ */
+export function trimToNull(str: string | null | undefined): string | null {
+  if (isNull(str)) {
+    return null
+  }
+
+  const trimmed = str.trim()
+  return trimmed.length > 0 ? trimmed : null
+}
