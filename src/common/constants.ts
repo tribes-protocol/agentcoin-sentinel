@@ -9,7 +9,7 @@ export const AGENT_PROVISION_FILE = path.join(AGENTCOIN_FUN_DIR, 'agent-provisio
 
 export const CHARACTER_FILE = path.join(AGENTCOIN_FUN_DIR, 'character.json')
 
-export const ENV_FILE = path.join(AGENTCOIN_FUN_DIR, 'env.production')
+export const ENV_FILE = path.join(AGENTCOIN_FUN_DIR, '.env')
 
 export const REGISTRATION_FILE = path.join(AGENTCOIN_FUN_DIR, 'registration.json')
 

@@ -1,5 +1,5 @@
 import { runtimeAPI } from '@/apis/runtime'
-import { BUILDS_DIR, CODE_DIR, GIT_STATE_FILE } from '@/common/constants'
+import { BUILDS_DIR, CODE_DIR, ENV_FILE, GIT_STATE_FILE } from '@/common/constants'
 import { isEqualGitState, isNull, trimToNull } from '@/common/functions'
 import { GitState, GitStateSchema } from '@/common/types'
 import { OperationQueue } from '@/lang/operation_queue'
@@ -104,14 +104,15 @@ export class GitService {
       const oldRepoPath = symlinkExists ? fs.realpathSync(CODE_DIR) : undefined
 
       try {
-        // // cpulimit -l 100 means 100% of ONE CPU core
-        // const numCores = os.cpus().length
-        // // 90% of all cores (in cpulimit units)
-        // const totalCpuLimit = Math.floor(numCores * 100 * 0.9)
-        // console.log(
-        //   `Limiting total CPU usage to 90% across ${numCores} cores (cpulimit: ${totalCpuLimit})`
-        // )
-        // execSync(`cpulimit -l ${totalCpuLimit} -- bun i`, {
+        // Create symlink for .env file
+        const buildEnvPath = path.join(repoPath, '.env')
+        if (fs.existsSync(buildEnvPath)) {
+          // Remove existing .env file in the build directory if it exists
+          fs.unlinkSync(buildEnvPath)
+        }
+        // Create symlink from root .env to build directory .env
+        fs.symlinkSync(ENV_FILE, buildEnvPath)
+        console.log(`Created .env symlink from ${ENV_FILE} to ${buildEnvPath}`)
 
         console.log('Installing runtime dependencies...')
         await spawnAsync('bun', ['i'], { cwd: repoPath, stdio: 'inherit' })
