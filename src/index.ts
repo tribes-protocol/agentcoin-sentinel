@@ -1,18 +1,14 @@
-import { AgentService } from '@/services/agent'
 import { GitService } from '@/services/git'
-import { KeychainService } from '@/services/keychain'
 
 export const main = async (): Promise<void> => {
   console.log('Home directory:', process.env.HOME)
   // initialize services
-  const keychainService = new KeychainService()
   const gitWatcherService = new GitService()
-  const agentService = new AgentService(gitWatcherService, keychainService)
 
   // handle SIGINT & SIGTERM
   const shutdown = async (signal: string): Promise<void> => {
     console.log(`Received ${signal}. Stopping sentinel...`)
-    await Promise.all([gitWatcherService.stop(), agentService.stop()])
+    await gitWatcherService.stop()
     process.exit(0)
   }
 
@@ -25,7 +21,7 @@ export const main = async (): Promise<void> => {
   })
 
   // start services
-  await Promise.all([gitWatcherService.start(), agentService.start()])
+  await gitWatcherService.start()
 }
 
 main().catch((error) => {
