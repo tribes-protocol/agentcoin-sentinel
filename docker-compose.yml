@@ -23,14 +23,13 @@ services:
     networks:
       - skynet
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U agentcoin -d agentcoin"]
+      test: ['CMD-SHELL', 'pg_isready -U agentcoin -d agentcoin']
       interval: 5s
       timeout: 5s
       retries: 10
 
-
-  # agent runtime process
-  agent-runtime:
+  # ayaos process
+  agent:
     image: hishtribes/agentcoin-runtime
     restart: always
     working_dir: /root/.agentcoin-fun/code

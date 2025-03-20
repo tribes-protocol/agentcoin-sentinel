@@ -3,7 +3,6 @@ import { GitService } from '@/services/git'
 import { KeychainService } from '@/services/keychain'
 
 export const main = async (): Promise<void> => {
-  console.log('Home directory:', process.env.HOME)
   // initialize services
   const keychainService = new KeychainService()
   const gitWatcherService = new GitService()

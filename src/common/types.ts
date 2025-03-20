@@ -112,6 +112,7 @@ export const BaseCharacterSchema = z.object({
 export type BaseCharacter = z.infer<typeof BaseCharacterSchema>
 
 export const CharacterSchema = BaseCharacterSchema.extend({
+  id: z.string().optional().nullable(),
   name: z.string(),
   clients: z.array(z.string()),
   modelProvider: z.string(),

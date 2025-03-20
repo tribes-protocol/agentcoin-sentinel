@@ -1,6 +1,6 @@
 import { ec } from '@/common/ec'
 import { GitState } from '@/common/types'
-import { createHash } from 'crypto'
+import { createHash, UUID } from 'crypto'
 
 export function isEqualGitState(state1: GitState, state2: GitState): boolean {
   return (
@@ -53,4 +53,15 @@ export function trimToNull(str: string | null | undefined): string | null {
 
   const trimmed = str.trim()
   return trimmed.length > 0 ? trimmed : null
+}
+
+const UUID_PATTERN = /^[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+-[0-9a-f]+$/i
+
+export function ensureUUID(input: string): UUID {
+  if (!UUID_PATTERN.test(input)) {
+    throw new Error(`Invalid UUID format: ${input}`)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  return input as UUID
 }

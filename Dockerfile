@@ -54,9 +54,9 @@ WORKDIR /root/sentinel
 RUN bun install
 RUN bun run build
 
-# runtime
-RUN git clone https://github.com/tribes-protocol/agentcoin-runtime.git /root/runtime
-WORKDIR /root/runtime
+# agent
+RUN git clone https://github.com/tribes-protocol/agent.git /root/agent
+WORKDIR /root/agent
 RUN bun install
 RUN bun run build
 

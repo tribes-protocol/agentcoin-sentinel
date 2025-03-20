@@ -9,5 +9,3 @@ export const AGENTCOIN_FUN_API_URL =
 export const AGENT_ADMIN_PUBLIC_KEY =
   process.env.AGENT_ADMIN_PUBLIC_KEY ||
   '02ef90c742e3a447ceec17330d4eccedf8b604487b0cda150c3e1babcbd4076967'
-
-export const ALCHEMY_ID = process.env.ALCHEMY_ID || 'demo'

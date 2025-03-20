@@ -39,3 +39,4 @@ yarn-error.log*
 **/tsconfig.tsbuildinfo
 tsconfig.tsbuildinfo
 packages/core/tsconfig.tsbuildinfo
+.vscode

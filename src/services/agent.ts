@@ -1,8 +1,13 @@
 import { agentcoinAPI } from '@/apis/agentcoin'
-import { AGENT_PROVISION_FILE } from '@/common/constants'
+import { CHARACTER_FILE } from '@/common/constants'
 import { AGENT_ADMIN_PUBLIC_KEY, AGENTCOIN_FUN_API_URL } from '@/common/env'
-import { isNull, isRequiredString, isValidSignature } from '@/common/functions'
-import { AgentIdentity, AgentIdentitySchema, SentinelSetGitCommandSchema } from '@/common/types'
+import { ensureUUID, isNull, isRequiredString, isValidSignature } from '@/common/functions'
+import {
+  AgentIdentity,
+  AgentIdentitySchema,
+  CharacterSchema,
+  SentinelSetGitCommandSchema
+} from '@/common/types'
 import { OperationQueue } from '@/lang/operation_queue'
 
 import { GitService } from '@/services/git'
@@ -96,17 +101,18 @@ export class AgentService {
     this.socket.connect()
   }
 
-  async getAgentId(): Promise<string> {
-    while (!fs.existsSync(AGENT_PROVISION_FILE)) {
-      console.log(`Waiting for agent provision file...${AGENT_PROVISION_FILE}`)
+  async getAgentId(): Promise<AgentIdentity> {
+    while (!fs.existsSync(CHARACTER_FILE)) {
+      console.log(`Waiting for agent to be provisioned...${CHARACTER_FILE}`)
       await new Promise((resolve) => setTimeout(resolve, 10000))
     }
 
     if (isNull(this.cachedIdentity)) {
-      const { agentId } = ProvisionStateSchema.parse(
-        JSON.parse(fs.readFileSync(AGENT_PROVISION_FILE, 'utf-8'))
-      )
-      this.cachedIdentity = agentId
+      const character = CharacterSchema.parse(JSON.parse(fs.readFileSync(CHARACTER_FILE, 'utf-8')))
+      if (isNull(character.id)) {
+        throw new Error('Agent ID is not set')
+      }
+      this.cachedIdentity = `AGENT-${ensureUUID(character.id)}`
     }
     return this.cachedIdentity
   }
