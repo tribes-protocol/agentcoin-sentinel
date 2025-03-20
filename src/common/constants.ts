@@ -9,6 +9,10 @@ export const ENV_FILE = path.join(AGENTCOIN_FUN_DIR, '.env')
 
 export const GIT_STATE_FILE = path.join(AGENTCOIN_FUN_DIR, 'agent-git.json')
 
+export const KEYPAIR_FILE = path.join(AGENTCOIN_FUN_DIR, 'agent-keypair.json')
+
+export const CHARACTER_FILE = path.join(AGENTCOIN_FUN_DIR, 'character.json')
+
 export const CODE_DIR = path.join(AGENTCOIN_FUN_DIR, 'code')
 
 export const BUILDS_DIR = path.join(AGENTCOIN_FUN_DIR, 'builds')

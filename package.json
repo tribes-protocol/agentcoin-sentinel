@@ -10,9 +10,6 @@
     "agent": "tsx dist/index.js"
   },
   "dependencies": {
-    "@turnkey/http": "2.18.0",
-    "@turnkey/sdk-server": "1.7.3",
-    "@turnkey/viem": "0.6.10",
     "axios": "1.7.9",
     "dotenv": "16.4.7",
     "elliptic": "6.6.1",

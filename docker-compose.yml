@@ -28,8 +28,8 @@ services:
       timeout: 5s
       retries: 10
 
-  # agent runtime process
-  agent-runtime:
+  # ayaos process
+  agent:
     image: avp1598/ayaos
     restart: always
     working_dir: /root/.agentcoin-fun/code
