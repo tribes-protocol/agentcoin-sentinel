@@ -30,7 +30,7 @@ services:
 
   # ayaos process
   agent:
-    image: hishtribes/agentcoin-runtime
+    image: avp1598/ayaos:latest
     restart: always
     working_dir: /root/.agentcoin-fun/code
     command: ['bun', 'run', 'agent']
@@ -44,7 +44,7 @@ services:
 
   # agent sentinel process
   agent-sentinel:
-    image: hishtribes/agentcoin-runtime
+    image: avp1598/ayaos:latest
     restart: always
     working_dir: /root/sentinel
     command: ['bun', 'run', 'agent']
