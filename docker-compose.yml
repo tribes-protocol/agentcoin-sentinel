@@ -4,8 +4,8 @@ services:
     image: pgvector/pgvector:0.8.0-pg17
     restart: always
     volumes:
-      - ${HOME}/.agentcoin-fun/dbdata:/var/lib/postgresql/data
-      - ${HOME}/.agentcoin-fun:/data
+      - ${HOME}/.ayaos/dbdata:/var/lib/postgresql/data
+      - ${HOME}/.ayaos:/data
     entrypoint: >
       bash -c '
       if [ ! -f "/data/db.env" ]; then
@@ -32,12 +32,12 @@ services:
   agent:
     image: avp1598/ayaos:latest
     restart: always
-    working_dir: /root/.agentcoin-fun/code
+    working_dir: /root/.ayaos/code
     command: ['bun', 'run', 'agent']
     networks:
       - skynet
     volumes:
-      - ${HOME}/.agentcoin-fun:/root/.agentcoin-fun
+      - ${HOME}/.ayaos:/root/.ayaos
     depends_on:
       - agent-sentinel
       - agent-postgres
@@ -51,7 +51,7 @@ services:
     networks:
       - skynet
     volumes:
-      - ${HOME}/.agentcoin-fun:/root/.agentcoin-fun
+      - ${HOME}/.ayaos:/root/.ayaos
 
   # watchtower for automatic updates
   watchtower:
